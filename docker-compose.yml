@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+    django:
+        build: ./django
+        container_name: "backend"
+        volumes:
+          - ./django:/usr/src/myapp
+        ports:
+          - 6969:8000
+    
+    db:
+    #   Use the Docker Image postgres. This will pull the newest release.
+       image: "postgres"
+    #   Give the container the name my_postgres. You can changes to something else.
+       container_name: "database"
+    #   Setup the username, password, and database name. You can changes these values.
+       environment:
+         - POSTGRES_USER=pelon
+         - POSTGRES_PASSWORD=roundrobin
+         - POSTGRES_DB=proyectoso
+    #   Maps port 54320 (localhost) to port 5432 on the container. You can change the ports to fix your needs.
+       ports:
+         - "6970:5432"
+    #   Set a volume some that database is not lost after shutting down the container.
+    #   I used the name postgres-data but you can changed it to something else.
+       volumes:
+         - ./db:/var/lib/postgresql/data
+
+    
+    php:
+        image: php:apache
+        container_name: "frontend"
+        volumes:
+            - ./php:/var/www/html
+        ports:
+            - 5000:80
+        depends_on:
+            - "django"   
